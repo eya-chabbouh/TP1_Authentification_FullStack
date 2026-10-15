@@ -1,21 +1,34 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
- 
+
 export async function GET() {
   const session = await getSession();
+
   if (!session) {
     return NextResponse.json(
-      { error: "Non authentifié" }, { status: 401 });
+      { error: "Non authentifié" },
+      { status: 401 }
+    );
   }
+
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, name: true, email: true,
-              createdAt: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+    },
   });
+
   if (!user) {
     return NextResponse.json(
-      { error: "Introuvable" }, { status: 404 });
+      { error: "Utilisateur introuvable" },
+      { status: 401 }
+    );
   }
+
   return NextResponse.json(user);
 }
